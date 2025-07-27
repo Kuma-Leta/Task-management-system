@@ -1,7 +1,7 @@
 // controllers/issueController.js
 const Issue = require("../models/issue");
 const Task = require("../models/task");
-const Notification = require("../models/Notification");
+const Notification = require("../models/notification");
 const AppError = require("../utils/appError");
 const asyncWrapper = require("../utils/asyncWraper");
 
