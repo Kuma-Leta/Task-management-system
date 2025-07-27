@@ -16,8 +16,8 @@ connectDB();
 app.use(express.json()); 
 app.use(
   cors({
-    origin: "http://localhost:5173", // Change this to your frontend URL (e.g., React app's URL)
-    methods: ["GET", "POST", "PATCH","DELETE","PUT"],
+    origin: "https://taskflowmanage.netlify.app/", // Change this to your frontend URL (e.g., React app's URL)
+    methods: ["GET", "POST", "PATCH", "DELETE", "PUT"],
     credentials: true, // Enable cookies if needed
   })
 );
