@@ -9,7 +9,7 @@ dotenv.config();
 
 const io = socketIo(server, {
   cors: {
-    origin: "http://localhost:5173", // The frontend URL, adjust as needed
+    origin: "https://taskflowmanage.netlify.app", // The frontend URL, adjust as needed
     methods: ["GET", "POST"],
     credentials: true, // Enable credentials if needed (cookies, etc.)
   },
