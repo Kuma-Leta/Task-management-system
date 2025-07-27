@@ -1,6 +1,6 @@
 import axios from "axios";
 const instance = axios.create({
-  baseURL: "http://localhost:5000",
+  baseURL: "https://task-management-system-2v4b.onrender.com",
 });
 instance.interceptors.request.use(
   (config) => {

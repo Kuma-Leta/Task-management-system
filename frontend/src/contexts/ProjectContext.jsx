@@ -14,7 +14,7 @@ export const ProjectProvider = ({ children }) => {
     const fetchProjects = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/v1/project"
+          "https://task-management-system-2v4b.onrender.com/api/v1/project"
         );
         setProjects(response.data.data.projects);
         console.log(response.data.data.projects);
@@ -40,7 +40,9 @@ export const ProjectProvider = ({ children }) => {
   const refreshProjects = async () => {
     setLoading(true);
     try {
-      const response = await axios.get("http://localhost:5000/api/v1/project");
+      const response = await axios.get(
+        "https://task-management-system-2v4b.onrender.com/api/v1/project"
+      );
       setProjects(response.data.data.projects);
 
       if (response.data.data.projects?.length > 0) {
