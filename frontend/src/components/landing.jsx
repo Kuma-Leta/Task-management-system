@@ -4,66 +4,88 @@ const LandingPage = () => {
   return (
     <div className="font-sans bg-gray-100 text-gray-800">
       {/* Navbar */}
-      <nav className="flex justify-between items-center p-4 bg-[#801A1A] text-white">
-        <div className="text-lg font-semibold">EagleLion System Technology</div>
-        <ul className="flex space-x-6">
+      <nav className="flex justify-between items-center p-4 bg-[#801A1A] text-white shadow-md">
+        {/* Logo & Brand */}
+        <div className="flex items-center space-x-3">
+          <img
+            src="/eaglelionLogo.svg"
+            alt="EagleLion Logo"
+            className="h-10 w-10 object-contain bg-white p-1 rounded-full"
+          />
+        </div>
+
+        {/* Navigation Links */}
+        <ul className="flex space-x-6 text-sm font-medium">
           <li>
-            <a href="#about" className="hover:text-gray-300">
+            <a href="#about" className="hover:text-gray-300 transition">
               About
             </a>
           </li>
           <li>
-            <a href="#services" className="hover:text-gray-300">
+            <a href="#services" className="hover:text-gray-300 transition">
               Services
             </a>
           </li>
           <li>
-            <a href="#portfolio" className="hover:text-gray-300">
+            <a href="#portfolio" className="hover:text-gray-300 transition">
               Portfolio
             </a>
           </li>
           <li>
-            <a href="#contact" className="hover:text-gray-300">
+            <a href="#contact" className="hover:text-gray-300 transition">
               Contact
             </a>
           </li>
         </ul>
       </nav>
 
-      {/* Hero Section */}
-      <section className="relative bg-[#801A1A] text-white h-screen flex flex-col justify-center items-center text-center px-4">
-        <h1 className="text-5xl font-extrabold mb-4">
-          Welcome to EagleLion Task Management Platform
-        </h1>
-        <p className="text-xl mb-6 max-w-2xl">
-          Simplify your workflows and achieve better productivity with
-          EagleLion’s advanced, user-friendly task management system.
-        </p>
-        <a href="/login">
-          <button className="px-8 py-3 bg-white text-[#801A1A] font-semibold rounded-lg shadow-md hover:bg-gray-100 transition duration-300">
-            Get Started
-          </button>
-        </a>
-      </section>
-
-      {/* About Section */}
       <section
-        id="about"
-        className="relative py-16 bg-white bg-cover bg-center"
+        className="relative h-screen flex flex-col justify-center items-center text-center px-4 text-white"
         style={{
-          backgroundImage: "url('/eaglelion1.jpeg')", // replace with your image path
+          backgroundImage: "url('/eaglelion1.jpeg')", // Replace with actual image path
+          backgroundSize: "cover",
+          backgroundPosition: "center",
         }}
       >
-        {/* Overlay for blur & shine */}
-        <div className="absolute inset-0 flex">
-          {/* Left side blur */}
-          <div className="w-1/2 bg-white/30 backdrop-blur-lg"></div>
-          {/* Right side shine */}
-          <div className="w-1/2 bg-gradient-to-l from-white/70 to-transparent"></div>
+        {/* Overlay: darken background, right end bright */}
+        <div className="absolute inset-0 pointer-events-none">
+          {/* Darken the whole background slightly */}
+          <div
+            className="absolute inset-0"
+            style={{
+              background: "rgba(0,0,0,0.45)",
+            }}
+          ></div>
+          {/* Right end strong but not harsh shine */}
+          <div
+            className="absolute inset-y-0 right-0 w-full"
+            style={{
+              background:
+                "linear-gradient(to left, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.25) 30%, transparent 60%)",
+            }}
+          ></div>
         </div>
 
         {/* Content */}
-        <div className="relative container mx-auto text-center text-gray-900">
+        <div className="relative z-10 max-w-3xl">
+          <h1 className="text-5xl font-extrabold mb-4 drop-shadow-md">
+            Welcome to EagleLion Task Management Platform
+          </h1>
+          <p className="text-xl mb-6">
+            Simplify your workflows and achieve better productivity with
+            EagleLion’s advanced, user-friendly task management system.
+          </p>
+          <a href="/login">
+            <button className="px-8 py-3 bg-[#F6C026] text-[#801A1A] font-semibold rounded-lg shadow-md hover:bg-yellow-300 transition duration-300">
+              Get Started
+            </button>
+          </a>
+        </div>
+      </section>
+
+      {/* About Section */}
+      <section id="about" className="py-16 bg-white">
+        <div className="container mx-auto text-center">
           <h2 className="text-3xl font-semibold mb-8">About Us</h2>
           <p className="text-lg max-w-3xl mx-auto">
             EagleLion System Technology is a leading provider of IT solutions
@@ -72,7 +94,7 @@ const LandingPage = () => {
             businesses and institutions.{" "}
             <a
               href="https://www.eaglelionsystems.com"
-              className="text-[#801A1A] font-medium hover:underline"
+              className="text-[#801A1A] hover:underline"
             >
               Learn more
             </a>
