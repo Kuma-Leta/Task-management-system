@@ -153,9 +153,9 @@ const LandingPage = () => {
           </p>
           <div className="flex flex-col items-center space-y-3">
             <p className="text-lg font-semibold">
-              📍 Location: Bishoftu, Ethiopia
+              📍Chirkos 08, ELILTA LUXURY APARTMENTS, 09, Addis Ababa
             </p>
-            <p className="text-lg font-semibold">📞 Phone: +251 9XX-XXX-XXX</p>
+            <p className="text-lg font-semibold">📞 Phone: (251) 933-03-0116</p>
             <p className="text-lg font-semibold">
               📧 Email:{" "}
               <a
