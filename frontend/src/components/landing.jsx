@@ -47,8 +47,23 @@ const LandingPage = () => {
       </section>
 
       {/* About Section */}
-      <section id="about" className="py-16 bg-white">
-        <div className="container mx-auto text-center">
+      <section
+        id="about"
+        className="relative py-16 bg-white bg-cover bg-center"
+        style={{
+          backgroundImage: "url('/eaglelion1.jpeg')", // replace with your image path
+        }}
+      >
+        {/* Overlay for blur & shine */}
+        <div className="absolute inset-0 flex">
+          {/* Left side blur */}
+          <div className="w-1/2 bg-white/30 backdrop-blur-lg"></div>
+          {/* Right side shine */}
+          <div className="w-1/2 bg-gradient-to-l from-white/70 to-transparent"></div>
+        </div>
+
+        {/* Content */}
+        <div className="relative container mx-auto text-center text-gray-900">
           <h2 className="text-3xl font-semibold mb-8">About Us</h2>
           <p className="text-lg max-w-3xl mx-auto">
             EagleLion System Technology is a leading provider of IT solutions
@@ -57,7 +72,7 @@ const LandingPage = () => {
             businesses and institutions.{" "}
             <a
               href="https://www.eaglelionsystems.com"
-              className="text-[#801A1A] hover:underline"
+              className="text-[#801A1A] font-medium hover:underline"
             >
               Learn more
             </a>
