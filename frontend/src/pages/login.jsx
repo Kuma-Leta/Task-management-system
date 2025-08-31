@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode"; // For decoding JWT tokens
 import { toast } from "react-toastify";
+import api_url from "../utils/constant";
 
 const PRIMARY_COLOR = "#801A1A";
 const SECONDARY_COLOR = "#F6C026";
@@ -41,7 +42,7 @@ const Login = () => {
 
     try {
       const response = await axios.post(
-        "https://task-management-system-2v4b.onrender.com/api/v1/auth/login",
+        `${api_url}/api/v1/auth/login`,
         formData
       );
 

@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-
+import api_url from "../utils/constant";
 const PRIMARY_COLOR = "#801A1A";
 const SECONDARY_COLOR = "#F6C026";
 
@@ -31,10 +31,7 @@ const Signup = () => {
     setErrorMessage(""); // Clear previous errors
 
     try {
-      await axios.post(
-        "https://task-management-system-2v4b.onrender.com/api/v1/auth/register",
-        formData
-      );
+      await axios.post(`${api_url}/api/v1/auth/register`, formData);
 
       // Save the email in local storage for auto-filling in the login page
       localStorage.setItem("userEmail", formData.email);

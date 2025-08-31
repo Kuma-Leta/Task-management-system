@@ -3,8 +3,9 @@ import { io } from "socket.io-client";
 import StatCard from "../components/shared/StatCard";
 import { useProject } from "../contexts/ProjectContext";
 import axios from "../../axiosConfig";
+import api_url from "../utils/constant";
 
-const socket = io("https://task-management-system-2v4b.onrender.com");
+const socket = io(`${api_url}`);
 
 const Dashboard = () => {
   const { selectedProject } = useProject();
@@ -27,7 +28,7 @@ const Dashboard = () => {
     try {
       setLoading(true);
       const response = await axios.get(
-        `https://task-management-system-2v4b.onrender.com/api/v1/tasks/project/${selectedProject._id}`
+        `${api_url}/api/v1/tasks/project/${selectedProject._id}`
       );
 
       const tasks = response.data.data.tasks;
@@ -99,7 +100,7 @@ const Dashboard = () => {
       );
 
       const response = await axios.patch(
-        `https://task-management-system-2v4b.onrender.com/api/v1/tasks/${editTask._id}`,
+        `${api_url}/api/v1/tasks/${editTask._id}`,
         editTask
       );
 
@@ -117,9 +118,7 @@ const Dashboard = () => {
       setTasks((prevTasks) =>
         prevTasks.filter((task) => task._id !== taskToDelete)
       ); // Remove immediately
-      await axios.delete(
-        `https://task-management-system-2v4b.onrender.com/api/v1/tasks/${taskToDelete}`
-      );
+      await axios.delete(`{${api_url}/api/v1/tasks/${taskToDelete}`);
       socket.emit("deleteTask", taskToDelete);
       setShowDeletePopup(false);
       setTaskToDelete(null);

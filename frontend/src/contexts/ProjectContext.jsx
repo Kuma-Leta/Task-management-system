@@ -9,13 +9,12 @@ export const ProjectProvider = ({ children }) => {
   const [selectedProject, setSelectedProject] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const api_url = import.meta.env.VITE_BACKEND_URL;
   // Fetch all projects on component mount
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const response = await axios.get(
-          "https://task-management-system-2v4b.onrender.com/api/v1/project"
-        );
+        const response = await axios.get(`${api_url}/api/v1/project`);
         setProjects(response.data.data.projects);
         console.log(response.data.data.projects);
         // Set the most recent project as the default selected project

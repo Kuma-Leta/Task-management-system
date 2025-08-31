@@ -6,7 +6,8 @@ import io from "socket.io-client";
 import { decodeToken } from "../../utils/decodeToken";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../contexts/AuthContext";
-const socket = io("https://task-management-system-2v4b.onrender.com"); // Connect to the Socket.IO server
+import api_url from "../../utils/constant";
+const socket = io(`${api_url}`); // Connect to the Socket.IO server
 
 const Topbar = () => {
   const { projects, selectedProject, selectProject, refreshProjects } =
