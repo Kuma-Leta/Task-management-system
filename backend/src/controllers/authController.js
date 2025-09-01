@@ -3,7 +3,7 @@ const jwt =require( "jsonwebtoken");
 const  AppError  =require( "../utils/appError.js"); 
 const asyncWraper=require('../utils/asyncWraper.js')
 // Function to register a new user
-const sendVerificationEmail=require('../service/emailService.js')
+const sendVerificationEmail=require('../service/emailService.js').sendVerificationEmail
 const nodemailer = require("nodemailer");
 
 

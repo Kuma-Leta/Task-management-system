@@ -151,7 +151,7 @@ const Topbar = () => {
         >
           {projects.map((project) => (
             <option key={project._id} value={project._id}>
-              {project.name}
+              {project?.name}
             </option>
           ))}
         </select>
@@ -229,7 +229,7 @@ const Topbar = () => {
             className="p-2 flex items-center gap-2 text-gray-400 hover:text-white focus:outline-none"
           >
             <FaUserCircle size={24} />
-            <p className="text-sm font-medium">{user.name}</p>
+            <p className="text-sm font-medium">{user?.name}</p>
           </button>
           {isUserMenuOpen && (
             <div className="absolute right-0 mt-2 w-48 bg-white text-black rounded-lg shadow-lg z-50">
@@ -340,7 +340,7 @@ const Topbar = () => {
             >
               {users.map((user) => (
                 <option key={user._id} value={user._id}>
-                  {user.name} ({user.email})
+                  {user?.name} ({user.email})
                 </option>
               ))}
             </select>
