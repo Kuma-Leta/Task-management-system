@@ -1,5 +1,5 @@
 const express =require( "express");
-const { registerUser, loginUser, getAllUsers } =require( "../controllers/authController.js");
+const { registerUser, loginUser, getAllUsers,googleLogin } =require( "../controllers/authController.js");
 
 const router = express.Router();
 
