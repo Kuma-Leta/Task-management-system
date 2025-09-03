@@ -5,7 +5,10 @@ const asyncWraper=require('../utils/asyncWraper.js')
 // Function to register a new user
 const sendVerificationEmail=require('../service/emailService.js').sendVerificationEmail
 const nodemailer = require("nodemailer");
+const { OAuth2Client } = require("google-auth-library");
+ // Your User model
 
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // Set up nodemailer transport (use environment variables in production)
 
@@ -115,6 +118,84 @@ const registerUser = async (req, res, next) => {
   });
 };
 
+const googleLogin = async (req, res, next) => {
+ try {
+  console.log(req.body)
+   const { token } = req.body;
+
+   if (!token) {
+     return res.status(400).json({
+       success: false,
+       message: "Google token is required",
+     });
+   }
+
+   // Verify the Google token
+   const ticket = await client.verifyIdToken({
+     idToken: token,
+     audience: process.env.GOOGLE_CLIENT_ID,
+   });
+
+   const payload = ticket.getPayload();
+   const { email, name, picture, sub: googleId } = payload;
+
+   // Check if user already exists
+   let user = await User.findOne({
+     $or: [{ email }, { googleId }],
+   });
+
+   if (!user) {
+     // Create new user if doesn't exist
+     user = new User({
+       email,
+       name,
+       googleId,
+       avatar: picture,
+       isVerified: true, // Google verified emails are already verified
+       authMethod: "google",
+     });
+     await user.save();
+   } else {
+     // Update existing user with Google info if needed
+     if (!user.googleId) {
+       user.googleId = googleId;
+       user.authMethod = "google";
+       await user.save();
+     }
+   }
+
+   // Generate JWT token
+   const jwtToken = jwt.sign(
+     {
+       userId: user._id,
+       email: user.email,
+       role: user.role,
+     },
+     process.env.JWT_SECRET,
+     { expiresIn: process.env.JWT_EXPIRES_IN || "7d" }
+   );
+
+   res.json({
+     success: true,
+     message: "Google authentication successful",
+     token: jwtToken,
+     user: {
+       id: user._id,
+       email: user.email,
+       name: user.name,
+       role: user.role,
+       avatar: user.avatar,
+     },
+   });
+ } catch (error) {
+   console.error("Google auth error:", error);
+   res.status(500).json({
+     success: false,
+     message: "Google authentication failed",
+     error: error.message,
+   });
+ }
+};
 
 
 // Protect routes
@@ -157,4 +238,4 @@ const getAllUsers = asyncWraper(async (req, res, next) => {
   });
 });
 
-module.exports = { loginUser, registerUser, protect,getAllUsers ,verifyEmail};
+module.exports = { loginUser,googleLogin, registerUser, protect,getAllUsers ,verifyEmail};
