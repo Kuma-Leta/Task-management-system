@@ -237,5 +237,159 @@ const getAllUsers = asyncWraper(async (req, res, next) => {
     },
   });
 });
+const forgotPassword = asyncWraper(async (req, res, next) => {
+   try {
+     const { email } = req.body;
 
-module.exports = { loginUser,googleLogin, registerUser, protect,getAllUsers ,verifyEmail};
+     if (!email) {
+       return res.status(400).json({
+         success: false,
+         message: "Email is required",
+       });
+     }
+
+     // Find user by email
+     const user = await User.findOne({ email });
+
+     // Always return success even if email doesn't exist (for security)
+     if (!user) {
+       return res.json({
+         success: true,
+         message:
+           "If the email exists, password reset instructions have been sent",
+       });
+     }
+
+     // Generate reset token
+     const resetToken = crypto.randomBytes(32).toString("hex");
+     const resetTokenExpiry = Date.now() + 3600000; // 1 hour from now
+
+     // Save reset token to user
+     user.resetPasswordToken = resetToken;
+     user.resetPasswordExpires = resetTokenExpiry;
+     await user.save();
+
+     // Create reset URL
+     const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
+
+     // Email content
+     const mailOptions = {
+       to: user.email,
+       from: process.env.EMAIL_FROM,
+       subject: "Password Reset Request - EagleLion Task Management",
+       html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #801A1A;">Password Reset Request</h2>
+          <p>You are receiving this because you (or someone else) have requested the reset of the password for your account.</p>
+          <p>Please click on the following link, or paste this into your browser to complete the process:</p>
+          <p>
+            <a href="${resetUrl}" style="background-color: #801A1A; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">
+              Reset Password
+            </a>
+          </p>
+          <p>If you did not request this, please ignore this email and your password will remain unchanged.</p>
+          <p>This reset link will expire in 1 hour.</p>
+          <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+          <p style="color: #666; font-size: 12px;">
+            EagleLion Task Management System<br>
+            This is an automated message, please do not reply.
+          </p>
+        </div>
+      `,
+     };
+
+     // Send email
+     await transporter.sendMail(mailOptions);
+
+     res.json({
+       success: true,
+       message: "Password reset instructions have been sent to your email",
+     });
+   } catch (error) {
+     console.error("Forgot password error:", error);
+     res.status(500).json({
+       success: false,
+       message: "Error sending password reset email",
+     });
+   }
+})
+const resetPassword=asyncWraper(async (req, res, next) => {
+try {
+  const { token, newPassword, confirmPassword } = req.body;
+
+  if (!token || !newPassword || !confirmPassword) {
+    return res.status(400).json({
+      success: false,
+      message: "Token, new password, and confirmation are required",
+    });
+  }
+
+  if (newPassword !== confirmPassword) {
+    return res.status(400).json({
+      success: false,
+      message: "Passwords do not match",
+    });
+  }
+
+  if (newPassword.length < 6) {
+    return res.status(400).json({
+      success: false,
+      message: "Password must be at least 6 characters long",
+    });
+  }
+
+  // Find user by reset token and check expiry
+  const user = await User.findOne({
+    resetPasswordToken: token,
+    resetPasswordExpires: { $gt: Date.now() },
+  });
+
+  if (!user) {
+    return res.status(400).json({
+      success: false,
+      message: "Password reset token is invalid or has expired",
+    });
+  }
+
+  // Update password and clear reset token
+  user.password = newPassword;
+  user.resetPasswordToken = undefined;
+  user.resetPasswordExpires = undefined;
+  user.authMethod = "local"; // Ensure auth method is local after password reset
+  await user.save();
+
+  // Send confirmation email
+  const mailOptions = {
+    to: user.email,
+    from: process.env.EMAIL_FROM,
+    subject: "Password Reset Successful - EagleLion Task Management",
+    html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #801A1A;">Password Reset Successful</h2>
+          <p>Your password has been successfully reset.</p>
+          <p>If you did not perform this action, please contact our support team immediately.</p>
+          <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+          <p style="color: #666; font-size: 12px;">
+            EagleLion Task Management System<br>
+            This is an automated message, please do not reply.
+          </p>
+        </div>
+      `,
+  };
+
+  await transporter.sendMail(mailOptions);
+
+  res.json({
+    success: true,
+    message: "Password has been reset successfully",
+  });
+} catch (error) {
+  console.error("Reset password error:", error);
+  res.status(500).json({
+    success: false,
+    message: "Error resetting password",
+  });
+}
+})
+
+module.exports = { loginUser,googleLogin, forgotPassword,resetPassword,registerUser, protect,getAllUsers ,verifyEmail};
