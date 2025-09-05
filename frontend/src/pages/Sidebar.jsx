@@ -1,11 +1,19 @@
 import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { useProject } from "../contexts/ProjectContext";
-import { FaBars, FaTimes } from "react-icons/fa"; // Import icons for the menu toggle
+import { FaBars, FaTimes } from "react-icons/fa";
+
+// Color constants
+const PRIMARY_COLOR = "#801A1A";
+const SECONDARY_COLOR = "#F6C026";
+const DARK_BG = "#2D3748";
+const LIGHT_TEXT = "#F7FAFC";
+const HOVER_BG = "#631414";
 
 const Sidebar = ({ userRole }) => {
   const { selectedProject } = useProject();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // State to manage sidebar visibility
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // mobile toggle
+  const [isCollapsed, setIsCollapsed] = useState(false); // desktop toggle
 
   const menuItems = [
     { path: "/todos", label: "To-Dos" },
@@ -21,44 +29,98 @@ const Sidebar = ({ userRole }) => {
 
   return (
     <>
-      {/* Menu Icon for Small Screens */}
+      {/* Mobile Toggle Button */}
       <button
         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-        className="fixed top-19 left-3 z-50 p-2 bg-gray-800 text-white rounded-lg md:hidden"
+        className="fixed top-4 left-3 z-50 p-2 rounded-lg md:hidden"
+        style={{
+          backgroundColor: PRIMARY_COLOR,
+          color: LIGHT_TEXT,
+          boxShadow: "0 2px 4px rgba(0, 0, 0, 0.2)",
+        }}
+        aria-label="Toggle menu"
       >
         {isSidebarOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
       </button>
 
       {/* Sidebar */}
       <div
-        className={`fixed top-16 left-0 w-64 bg-gray-800 text-white transform transition-transform duration-300 ease-in-out ${
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } md:translate-x-0 md:relative md:top-0 md:w-64 h-[calc(100vh-4rem)] flex flex-col p-4 z-40`}
+        className={`fixed top-0 left-0 transform transition-transform duration-300 ease-in-out 
+          ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} 
+          md:translate-x-0 md:relative md:top-0 h-screen flex flex-col z-40 
+          ${isCollapsed ? "w-20" : "w-64"}`}
+        style={{ backgroundColor: DARK_BG }}
       >
-        <h2 className="text-lg font-semibold mb-4">{selectedProject?.name}</h2>
-        <nav className="flex flex-col gap-2">
+        {/* Sidebar Header */}
+        <div
+          className="p-4 border-b flex items-center justify-between"
+          style={{ borderColor: PRIMARY_COLOR }}
+        >
+          {!isCollapsed && (
+            <h2
+              className="text-lg font-semibold truncate"
+              style={{ color: SECONDARY_COLOR }}
+              title={selectedProject?.name}
+            >
+              {selectedProject?.name || "Select Project"}
+            </h2>
+          )}
+
+          {/* Collapse/Expand Button for Desktop */}
+          <button
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="hidden md:block p-2 rounded-lg"
+            style={{
+              backgroundColor: PRIMARY_COLOR,
+              color: LIGHT_TEXT,
+            }}
+          >
+            {isCollapsed ? <FaBars size={18} /> : <FaTimes size={18} />}
+          </button>
+        </div>
+
+        {/* Navigation Menu */}
+        <nav className="flex flex-col p-4 gap-2 flex-grow">
           {menuItems.map((item, index) => (
             <NavLink
               key={index}
               to={item.path}
               className={({ isActive }) =>
-                `block px-4 py-2 rounded transition ${
-                  isActive ? "bg-blue-600" : "hover:bg-blue-500"
+                `block px-4 py-3 rounded-lg transition-all duration-200 font-medium flex items-center gap-2 ${
+                  isActive ? "shadow-md" : "hover:shadow-md"
                 }`
               }
-              onClick={() => setIsSidebarOpen(false)} // Close sidebar on link click (for small screens)
+              style={({ isActive }) => ({
+                backgroundColor: isActive ? PRIMARY_COLOR : "transparent",
+                color: isActive ? LIGHT_TEXT : SECONDARY_COLOR,
+                border: isActive ? "none" : `1px solid ${PRIMARY_COLOR}`,
+              })}
+              onClick={() => setIsSidebarOpen(false)}
             >
-              {item.label}
+              {/* Show only label if expanded */}
+              {!isCollapsed && item.label}
+              {/* If collapsed, show initials */}
+              {isCollapsed && item.label[0]}
             </NavLink>
           ))}
         </nav>
+
+        {/* Sidebar Footer */}
+        {!isCollapsed && (
+          <div
+            className="p-4 mt-auto text-xs text-center"
+            style={{ color: SECONDARY_COLOR, opacity: 0.7 }}
+          >
+            EagleLion Task Manager
+          </div>
+        )}
       </div>
 
-      {/* Overlay for Small Screens */}
+      {/* Overlay for Mobile */}
       {isSidebarOpen && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden"
-          onClick={() => setIsSidebarOpen(false)} // Close sidebar when clicking outside
+          onClick={() => setIsSidebarOpen(false)}
         />
       )}
     </>
