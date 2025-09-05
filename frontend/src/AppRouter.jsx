@@ -14,12 +14,13 @@ import Login from "./pages/login";
 import Signup from "./pages/signup";
 import Tasks from "./pages/Tasks";
 import LandingPage from "./components/landing";
-
+import ResetPassword from "./pages/resetPassword";
 const AppRouter = () => {
   return (
     <Routes>
       {/* Redirect to Login by default */}
       <Route path="/" element={<Navigate to="/landing" />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
 
       {/* Authentication Routes */}
       <Route path="/login" element={<Login />} />
