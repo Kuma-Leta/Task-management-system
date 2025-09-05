@@ -90,7 +90,7 @@ const registerUser = async (req, res, next) => {
 
 // Function to login user and generate JWT
  const loginUser = async (req, res, next) => {
-  console.log(req.body)
+  
   const { email, password } = req.body;
 
   // Check if the user exists
@@ -123,7 +123,7 @@ const registerUser = async (req, res, next) => {
 
 const googleLogin = async (req, res, next) => {
  try {
-  console.log(req.body)
+  
    const { token } = req.body;
 
    if (!token) {
