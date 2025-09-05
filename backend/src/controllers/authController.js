@@ -7,6 +7,9 @@ const sendVerificationEmail=require('../service/emailService.js').sendVerificati
 const nodemailer = require("nodemailer");
 const { OAuth2Client } = require("google-auth-library");
  // Your User model
+ const crypto = require("crypto");
+
+require("dotenv").config();
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -237,6 +240,13 @@ const getAllUsers = asyncWraper(async (req, res, next) => {
     },
   });
 });
+const transporter = nodemailer.createTransport({
+  service: "Gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
 const forgotPassword = asyncWraper(async (req, res, next) => {
    try {
      const { email } = req.body;
@@ -391,5 +401,33 @@ try {
   });
 }
 })
+const validateResetToken=asyncWraper(async (req, res, next) => {
+  try {
+    const { token } = req.params;
 
-module.exports = { loginUser,googleLogin, forgotPassword,resetPassword,registerUser, protect,getAllUsers ,verifyEmail};
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "Password reset token is invalid or has expired",
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Token is valid",
+      email: user.email,
+    });
+  } catch (error) {
+    console.error("Validate token error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error validating token",
+    });
+  }
+})
+module.exports = { loginUser,googleLogin,validateResetToken, forgotPassword,resetPassword,registerUser, protect,getAllUsers ,verifyEmail};
