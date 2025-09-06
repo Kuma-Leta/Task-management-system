@@ -16,7 +16,7 @@ const Layout = () => {
         <Sidebar userRole={userRole} />
 
         {/* Main Content */}
-        <div className="flex-1 p-6 bg-gray-100 overflow-y-auto">
+        <div className="flex-1 p-6  overflow-y-auto">
           <Outlet />
         </div>
       </div>
