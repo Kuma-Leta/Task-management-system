@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { FaBell, FaCheck, FaTimes } from "react-icons/fa";
 import io from "socket.io-client";
 import { decodeToken } from "../../utils/decodeToken";
@@ -11,6 +11,7 @@ const Notifications = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const dropdownRef = useRef(null);
 
   const fetchNotifications = async () => {
     try {
@@ -55,6 +56,26 @@ const Notifications = () => {
     }
   };
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        // Check if the click is not on the bell icon
+        const bellIcon = event.target.closest(
+          'button[title="View notifications"]'
+        );
+        if (!bellIcon) {
+          setIsOpen(false);
+        }
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   useEffect(() => {
     fetchNotifications();
 
@@ -74,7 +95,7 @@ const Notifications = () => {
   }, []);
 
   return (
-    <div className="relative">
+    <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="p-2 text-gray-500 hover:text-blue-500 focus:outline-none relative transition-colors"

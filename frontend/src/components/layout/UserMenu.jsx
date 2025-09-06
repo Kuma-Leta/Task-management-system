@@ -1,8 +1,32 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { FaUserCircle } from "react-icons/fa";
 
 const UserMenu = ({ user, navigate }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const menuRef = useRef(null);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        // Check if the click is not on the user menu button
+        const userMenuButton = event.target.closest("button");
+        const isUserMenuButton =
+          userMenuButton &&
+          userMenuButton.contains(event.target) &&
+          userMenuButton.parentElement === menuRef.current;
+
+        if (!isUserMenuButton) {
+          setIsOpen(false);
+        }
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const handleLogout = () => {
     if (window.confirm("Are you sure you want to logout?")) {
@@ -12,10 +36,12 @@ const UserMenu = ({ user, navigate }) => {
   };
 
   return (
-    <div className="relative">
+    <div className="relative" ref={menuRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-2 p-2 rounded-md hover:bg-gray-100 transition-colors"
+        aria-expanded={isOpen}
+        aria-haspopup="true"
       >
         <FaUserCircle size={24} className="text-gray-600" />
         <div className="text-left hidden md:block">
@@ -30,10 +56,16 @@ const UserMenu = ({ user, navigate }) => {
             <p className="text-sm font-medium text-gray-800">{user?.name}</p>
             <p className="text-xs text-gray-500">{user?.email}</p>
           </div>
-          <button className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+          <button
+            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+            onClick={() => setIsOpen(false)}
+          >
             Profile
           </button>
-          <button className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+          <button
+            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+            onClick={() => setIsOpen(false)}
+          >
             Settings
           </button>
           <button
