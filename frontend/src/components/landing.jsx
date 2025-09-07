@@ -29,7 +29,7 @@ const SERVICES = [
     desc: "Providing expert guidance to align IT with your organizational goals.",
   },
   {
-    title: "Training & Capacity Building",
+    title: "Training & Capacity Building ",
     desc: "Empowering professionals through hands-on technical training.",
   },
 ];
