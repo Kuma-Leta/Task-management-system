@@ -16,11 +16,14 @@ connectDB();
 app.use(express.json()); 
 app.use(
   cors({
-    origin: `${process.env.FRONTEND_URL}`, // Change this to your frontend URL (e.g., React app's URL)
+    origin: `${process.env.FRONTEND_URL}  || "*"`, // Change this to your frontend URL (e.g., React app's URL)
     methods: ["GET", "POST", "PATCH", "DELETE", "PUT"],
     credentials: true, // Enable cookies if needed
   })
 );
+app.get("/", (req, res) => {
+  res.send("Backend is running 🚀");
+});
 // Define routes
 app.use("/api/v1/auth", userRoutes);
 app.use("/api/v1/issues", issueRouter);
