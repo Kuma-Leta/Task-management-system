@@ -26,7 +26,14 @@ const Tasks = () => {
         const response = await axios.get(
           `/api/v1/tasks/project/${selectedProject._id}`
         );
-        setTasks(response.data.data.tasks);
+        const fetchedTasks = response.data.data.tasks;
+
+        if (!fetchedTasks || fetchedTasks.length === 0) {
+          setError("No tasks have been created for this project yet.");
+        } else {
+          setTasks(fetchedTasks);
+          setError(""); // clear error if tasks exist
+        }
       } catch (err) {
         console.error("Error fetching tasks:", err);
         setError("Failed to fetch tasks. Please try again.");
