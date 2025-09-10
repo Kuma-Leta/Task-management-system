@@ -14,6 +14,7 @@ const CreateProjectModal = ({ onClose, refreshProjects }) => {
   const [users, setUsers] = useState([]);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fetchUsers = async () => {
     try {
@@ -24,9 +25,47 @@ const CreateProjectModal = ({ onClose, refreshProjects }) => {
     }
   };
 
+  const validateForm = () => {
+    if (!formData.name.trim()) {
+      setErrorMessage("Project name is required");
+      return false;
+    }
+    if (!formData.description.trim()) {
+      setErrorMessage("Description is required");
+      return false;
+    }
+    if (!formData.deadline) {
+      setErrorMessage("Deadline is required");
+      return false;
+    }
+    if (!formData.startDate) {
+      setErrorMessage("Start date is required");
+      return false;
+    }
+    if (!formData.endDate) {
+      setErrorMessage("End date is required");
+      return false;
+    }
+
+    // Date validation
+    if (new Date(formData.startDate) > new Date(formData.endDate)) {
+      setErrorMessage("Start date cannot be after end date");
+      return false;
+    }
+    if (new Date(formData.deadline) < new Date(formData.endDate)) {
+      setErrorMessage("Deadline cannot be before project end date");
+      return false;
+    }
+
+    return true;
+  };
+
   const handleCreateProject = async () => {
+    if (!validateForm()) return;
+
+    setIsSubmitting(true);
     try {
-      await axios.post("/api/v1/project", {
+      const response = await axios.post("/api/v1/project", {
         name: formData.name,
         description: formData.description,
         deadline: formData.deadline,
@@ -47,13 +86,21 @@ const CreateProjectModal = ({ onClose, refreshProjects }) => {
       }, 2000);
     } catch (error) {
       console.error("Error creating project:", error);
-      setErrorMessage("Failed to create project. Please try again.");
+      const errorMsg =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        "Failed to create project. Please try again.";
+      setErrorMessage(errorMsg);
       setSuccessMessage("");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    // Clear error when user starts typing
+    if (errorMessage) setErrorMessage("");
   };
 
   useEffect(() => {
@@ -71,6 +118,7 @@ const CreateProjectModal = ({ onClose, refreshProjects }) => {
             <button
               onClick={onClose}
               className="text-gray-400 hover:text-gray-600"
+              disabled={isSubmitting}
             >
               <FaTimes size={20} />
             </button>
@@ -95,6 +143,7 @@ const CreateProjectModal = ({ onClose, refreshProjects }) => {
               placeholder="Project Name"
               value={formData.name}
               onChange={(e) => handleInputChange("name", e.target.value)}
+              required
             />
 
             <FormField
@@ -104,6 +153,7 @@ const CreateProjectModal = ({ onClose, refreshProjects }) => {
               value={formData.description}
               onChange={(e) => handleInputChange("description", e.target.value)}
               rows="3"
+              required
             />
 
             <FormField
@@ -111,6 +161,8 @@ const CreateProjectModal = ({ onClose, refreshProjects }) => {
               type="date"
               value={formData.deadline}
               onChange={(e) => handleInputChange("deadline", e.target.value)}
+              required
+              min={formData.startDate || new Date().toISOString().split("T")[0]}
             />
 
             <FormField
@@ -118,6 +170,8 @@ const CreateProjectModal = ({ onClose, refreshProjects }) => {
               type="date"
               value={formData.startDate}
               onChange={(e) => handleInputChange("startDate", e.target.value)}
+              required
+              min={new Date().toISOString().split("T")[0]}
             />
 
             <FormField
@@ -125,11 +179,13 @@ const CreateProjectModal = ({ onClose, refreshProjects }) => {
               type="date"
               value={formData.endDate}
               onChange={(e) => handleInputChange("endDate", e.target.value)}
+              required
+              min={formData.startDate || new Date().toISOString().split("T")[0]}
             />
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Members
+                Members (Optional)
               </label>
               <select
                 multiple
@@ -153,21 +209,26 @@ const CreateProjectModal = ({ onClose, refreshProjects }) => {
               <p className="text-xs text-gray-500 mt-1">
                 Hold Ctrl/Cmd to select multiple members
               </p>
+              <p className="text-xs text-gray-500">
+                Selected: {formData.members.length} members
+              </p>
             </div>
           </div>
 
           <div className="flex justify-end gap-3 mt-6">
             <button
-              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
               onClick={onClose}
+              disabled={isSubmitting}
             >
               Cancel
             </button>
             <button
-              className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+              className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={handleCreateProject}
+              disabled={isSubmitting}
             >
-              Create Project
+              {isSubmitting ? "Creating..." : "Create Project"}
             </button>
           </div>
         </div>
@@ -176,10 +237,19 @@ const CreateProjectModal = ({ onClose, refreshProjects }) => {
   );
 };
 
-const FormField = ({ label, type, value, onChange, placeholder, rows }) => (
+const FormField = ({
+  label,
+  type,
+  value,
+  onChange,
+  placeholder,
+  rows,
+  required,
+  min,
+}) => (
   <div>
     <label className="block text-sm font-medium text-gray-700 mb-1">
-      {label}
+      {label} {required && <span className="text-red-500">*</span>}
     </label>
     {type === "textarea" ? (
       <textarea
@@ -188,6 +258,7 @@ const FormField = ({ label, type, value, onChange, placeholder, rows }) => (
         onChange={onChange}
         rows={rows}
         className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        required={required}
       />
     ) : (
       <input
@@ -196,6 +267,8 @@ const FormField = ({ label, type, value, onChange, placeholder, rows }) => (
         value={value}
         onChange={onChange}
         className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        required={required}
+        min={min}
       />
     )}
   </div>

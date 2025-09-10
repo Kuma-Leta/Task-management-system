@@ -74,8 +74,8 @@ const removeMember = asyncWrapper(async (req, res, next) => {
   });
 });
 const createProject = asyncWrapper(async (req, res, next) => {
-  const { name, description, deadline, schedule, members } = req.body;
-console.log(members)
+  const { name, description, deadline, schedule, members = [] } = req.body;
+
   if (
     !name ||
     !description ||
@@ -91,21 +91,52 @@ console.log(members)
     );
   }
 
-  const project = await Project.create({
-    name,
-    description,
-    deadline,
-    schedule,
-    members,
-    createdBy: req.user._id, // Assuming user is authenticated and `req.user` is set
-  });
+  // Validate that members is an array
+  if (!Array.isArray(members)) {
+    return next(new AppError("Members must be an array", 400));
+  }
 
-  res.status(201).json({
-    status: "success",
-    data: {
-      project,
-    },
-  });
+  // Validate schedule dates
+  if (new Date(schedule.startDate) > new Date(schedule.endDate)) {
+    return next(new AppError("Start date cannot be after end date", 400));
+  }
+
+  if (new Date(deadline) < new Date(schedule.endDate)) {
+    return next(
+      new AppError("Deadline cannot be before project end date", 400)
+    );
+  }
+
+  try {
+    const project = await Project.create({
+      name,
+      description,
+      deadline: new Date(deadline),
+      schedule: {
+        startDate: new Date(schedule.startDate),
+        endDate: new Date(schedule.endDate),
+      },
+      members: Array.isArray(members) ? members : [],
+      createdBy: req.user._id,
+    });
+
+    // Populate the createdBy field for the response
+    await project.populate("createdBy", "name email");
+    await project.populate("members", "name email");
+
+    res.status(201).json({
+      status: "success",
+      data: {
+        project,
+      },
+    });
+  } catch (error) {
+    if (error.name === "ValidationError") {
+      const errors = Object.values(error.errors).map((el) => el.message);
+      return next(new AppError(`Validation error: ${errors.join(", ")}`, 400));
+    }
+    next(error);
+  }
 });
 // Get all projects
 const getAllProjects = asyncWrapper(async (req, res, next) => {
