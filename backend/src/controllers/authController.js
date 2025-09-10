@@ -143,9 +143,11 @@ const googleLogin = async (req, res, next) => {
    const { email, name, picture, sub: googleId } = payload;
 
    // Check if user already exists
-   let user = await User.findOne({
+   let user = await User.findOne( 
+    {
      $or: [{ email }, { googleId }],
-   });
+   }
+  );
 
    if (!user) {
      // Create new user if doesn't exist

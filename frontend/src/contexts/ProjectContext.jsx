@@ -39,9 +39,7 @@ export const ProjectProvider = ({ children }) => {
   const refreshProjects = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(
-        "https://task-management-system-2v4b.onrender.com/api/v1/project"
-      );
+      const response = await axios.get(`${api_url}/api/v1/project`);
       setProjects(response.data.data.projects);
 
       if (response.data.data.projects?.length > 0) {
