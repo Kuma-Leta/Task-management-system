@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { FaUserCircle } from "react-icons/fa";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const UserMenu = ({ user, navigate }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -9,19 +11,9 @@ const UserMenu = ({ user, navigate }) => {
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
-        // Check if the click is not on the user menu button
-        const userMenuButton = event.target.closest("button");
-        const isUserMenuButton =
-          userMenuButton &&
-          userMenuButton.contains(event.target) &&
-          userMenuButton.parentElement === menuRef.current;
-
-        if (!isUserMenuButton) {
-          setIsOpen(false);
-        }
+        setIsOpen(false);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
@@ -31,6 +23,10 @@ const UserMenu = ({ user, navigate }) => {
   const handleLogout = () => {
     if (window.confirm("Are you sure you want to logout?")) {
       localStorage.removeItem("authToken");
+      toast.success("You have been logged out successfully!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
       navigate("/login");
     }
   };
